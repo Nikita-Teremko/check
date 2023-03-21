@@ -1,0 +1,33 @@
+FROM python:3.8
+
+WORKDIR /srv
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# RUN apt-get update \
+#     && apt-get -y install netcat gcc libpq-dev libkrb5-dev git \
+#     && apt-get install -y binutils libproj-dev gdal-bin g++ python3-gdal\
+#     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN apt-get update \
+    && apt-get -y install netcat gcc libpq-dev libkrb5-dev git \
+    && apt-get install -y binutils libproj-dev gdal-bin g++ \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal  
+
+# COPY /io/wheels/GDAL-3.2.2-cp39-cp39-manylinux2010_x86_64.whl /srv/
+COPY . /srv
+# COPY GDAL-3.2.2-cp39-cp39-manylinux2010_x86_64.whl /srv
+# RUN pip install /srv/GDAL-3.2.2-cp39-cp39-manylinux2010_x86_64.whl
+
+
+RUN pip install --upgrade pip
+RUN pip install numpy
+RUN pip install -r requirements.txt
+RUN python setup.py install --user
+
+RUN pip install jupyter
+
+EXPOSE 8887
